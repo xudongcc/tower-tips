@@ -1,6 +1,14 @@
 <template>
   <div id="app">
-    <header class="tips-header">Tower.im Tips</header>
+    <header class="tips-header">
+      <div class="tips-header__icon">
+        <font-awesome-icon icon="check" />
+      </div>
+      <h1 class="tips-header__title">Tower.im Tips</h1>
+      <div class="tips-header__icon">
+        <font-awesome-icon icon="cog" />
+      </div>
+    </header>
     <router-view class="tips-main" />
   </div>
 </template>
@@ -27,6 +35,21 @@
   background-color: rgb(118, 193, 197);
   color: #fff;
   font-size: 16px;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+
+  &__title {
+    flex: 1;
+    display: flex;
+    font-size: 16px;
+    justify-content: center;
+  }
 }
 
 .tips-main {
