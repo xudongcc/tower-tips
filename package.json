@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "rm -rf dist && webpack -w",
-    "build": "rm -rf dist && webpack"
+    "build": "rm -rf dist dist.zip && webpack && zip -r dist.zip dist"
   },
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.4",
