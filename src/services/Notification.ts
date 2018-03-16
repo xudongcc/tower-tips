@@ -36,13 +36,19 @@ export class Notification {
             // 动作
             const action = $(notice).find(".action").first().html() || "";
 
-            // 内容
-            const content = $(notice).find(".-rest").first().html() || "";
+            // 目标
+            const target = $(notice).find(".-rest").first().html() || "";
+
+            // 目标
+            const content = $(notice).find(".content").first().html() || "";
+
+            // 未读
+            const unread = $(notice).hasClass("unread");
 
             // 创建时间
             const createdAt = $(notice).attr("data-created-at");
 
-            data.push(new Notification(id, action, content, createdAt, member, tags));
+            data.push(new Notification(id, action, target, content, unread, createdAt, member, tags));
         });
 
         return data;
@@ -50,7 +56,9 @@ export class Notification {
 
     public id: string;
     public action: string;
+    public target: string;
     public content: string;
+    public unread: boolean;
     public createdAt: string;
     public member: any;
     public tags: string[];
@@ -58,14 +66,18 @@ export class Notification {
     constructor(
         id: string,
         action: string,
+        target: string,
         content: string,
+        unread: boolean,
         createdAt: string,
         member: any,
         tags: string[],
     ) {
         this.id = id;
         this.action = action;
+        this.target = target;
         this.content = content;
+        this.unread = unread;
         this.createdAt = createdAt;
         this.member = member;
         this.tags = tags;
