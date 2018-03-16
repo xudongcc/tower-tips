@@ -11,8 +11,13 @@
       <div class="notificationItem__content" v-if="notification.content" v-html="notification.content"></div>
     </div>
     <div class="notificationItem__date">
-      {{ moment(Date(notification.createdAt)).format("YYYY年") }}<br/>
-      {{ moment(Date(notification.createdAt)).format("MM月DD日") }}
+      <template v-if="Math.floor(new Date().getTime() / 1000 - new Date(notification.createdAt).getTime() / 1000) < 60 * 60 * 24 * 3">
+        {{ friendlyDate(new Date(notification.createdAt)) }}
+      </template>
+      <template v-else>
+        {{ moment(new Date(notification.createdAt)).format("YYYY年") }}<br/>
+        {{ moment(new Date(notification.createdAt)).format("MM月DD日") }}
+      </template>
     </div>
   </div>
 </template>
@@ -33,6 +38,22 @@ export default class NotificationItem extends Vue {
 
   @Provide()
   public moment = moment;
+
+  public friendlyDate(date: Date) {
+    const timestamp = date.getTime() / 1000;
+    const currentTimestamp = new Date().getTime() / 1000;
+    const diffTimestamp = currentTimestamp - timestamp;
+
+    if (diffTimestamp < 60) {
+      return "刚刚";
+    } else if (diffTimestamp < 60 * 60) {
+      return `${Math.floor(diffTimestamp / 60)}分钟前`;
+    } else if (diffTimestamp < 60 * 60 * 24) {
+      return `${Math.floor(diffTimestamp / 60 / 60)}小时前`;
+    } else {
+      return `${Math.floor(diffTimestamp / 60 / 60 / 24)}天前`;
+    }
+  }
 
   public openMemberPage(memberId: string) {
     window.open(`https://tower.im/members/${memberId}`);
