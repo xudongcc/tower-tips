@@ -54,6 +54,23 @@ export class Notification {
         return data;
     }
 
+    public static async readAll(teamId: string) {
+        const response = await axios.get(`https://tower.im/teams/${teamId}/notifications/`, {
+            withCredentials: true,
+        });
+
+        const $ = cheerio.load(response.data);
+        const CSRF_TOKEN = $("meta[name='csrf-token']").attr("content");
+
+        await axios.post(`https://tower.im/teams/${teamId}/notifications/read_all`, "", {
+            headers: {
+                "X-CSRF-Token": CSRF_TOKEN,
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            withCredentials: true,
+        });
+    }
+
     public id: string;
     public action: string;
     public target: string;

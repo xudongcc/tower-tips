@@ -1,23 +1,17 @@
-import fontawesome from "@fortawesome/fontawesome";
-import FontAwesomeIcon from "@fortawesome/vue-fontawesome";
-
-import brands from "@fortawesome/fontawesome-free-brands";
-import regular from "@fortawesome/fontawesome-free-regular";
-import solid from "@fortawesome/fontawesome-free-solid";
+import Vant from "vant";
+import "vant/lib/vant-css/index.css";
 
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
+import store from "./store";
 
-fontawesome.library.add(solid);
-fontawesome.library.add(regular);
-fontawesome.library.add(brands);
-
-Vue.component("font-awesome-icon", FontAwesomeIcon);
+Vue.use(Vant);
 
 Vue.config.productionTip = false;
 
 new Vue({
   render: (h) => h(App),
   router,
+  store,
 }).$mount("#app");

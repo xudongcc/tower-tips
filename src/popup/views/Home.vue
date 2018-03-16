@@ -8,7 +8,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Provide, Vue } from "vue-property-decorator";
+import { Component, Provide, Vue, Watch } from "vue-property-decorator";
+import { State } from "vuex-class";
 import { Notification } from "../../services/Notification";
 import NotificationItem from "../components/NotificationItem.vue";
 
@@ -18,15 +19,31 @@ import NotificationItem from "../components/NotificationItem.vue";
   },
 })
 export default class Home extends Vue {
-  @Provide() public teamId: string = "ac7af4421cc94b51bc19b553448b2c42";
-  @Provide() public notifications: Notification[] = [];
+  @State("teamId")
+  public teamId?: string;
+
+  @Provide()
+  public notifications: Notification[] = [];
+
+  public async getNotifications() {
+    if (this.teamId) {
+      this.notifications = await Notification.getNotifications(this.teamId);
+    }
+  }
+
+  @Watch("teamId")
+  public onTeamIdChanged(teamId: string) {
+    this.getNotifications();
+  }
 
   public async mounted() {
-    this.notifications = await Notification.getNotifications(this.teamId);
+    this.getNotifications();
   }
 
   public async openNotificationsPage() {
-    window.open(`https://tower.im/teams/${this.teamId}/notifications/`);
+    if (this.teamId) {
+      window.open(`https://tower.im/teams/${this.teamId}/notifications/`);
+    }
   }
 }
 </script>

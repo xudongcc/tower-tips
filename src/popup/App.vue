@@ -1,17 +1,88 @@
 <template>
   <div id="app">
-    <header class="tips-header">
-      <div class="tips-header__icon">
-        <font-awesome-icon icon="check" />
-      </div>
-      <h1 class="tips-header__title">Tower.im Tips</h1>
-      <div class="tips-header__icon">
-        <font-awesome-icon icon="cog" />
-      </div>
-    </header>
+    <van-nav-bar
+      class="tips-header"
+      @click-left="readAll"
+      @click-right="openSettingPopup">
+      <span class="tips-header__title" slot="title">Tower.im Tips</span>
+      <van-icon class="tips-header__icon" name="success" slot="left" />
+      <van-icon class="tips-header__icon" name="setting" slot="right" />
+    </van-nav-bar>
     <router-view class="tips-main" />
+
+    <!-- 选择团队面板 -->
+    <van-actionsheet
+      class="tips-selectPanel"
+      v-model="showSelectTeam"
+      :actions="actions" />
   </div>
 </template>
+
+<script lang="ts">
+import { Toast } from "vant";
+import { Component, Vue } from "vue-property-decorator";
+import { Action, State } from "vuex-class";
+import { Notification } from "../services/Notification";
+import { Team } from "../services/Team";
+
+@Component({})
+export default class Home extends Vue {
+  @State("teamId")
+  public teamId?: string;
+
+  @Action("setTeamId")
+  public setTeamId?: (teamId: string) => void;
+
+  public showSelectTeam: boolean = false;
+  public teams: Team[] = [];
+
+  get actions() {
+    return this.teams.map((team) => {
+      return {
+        ...team,
+        callback: () => {
+          if (this.setTeamId) {
+            this.setTeamId(team.id);
+          }
+
+          this.showSelectTeam = false;
+          Toast(`切换团队为 ${team.name}`);
+        },
+        className: this.teamId === team.id ? "active" : "",
+      };
+    });
+  }
+
+  public async mounted() {
+    if (!this.teamId) {
+      this.teams = await Team.getTeams();
+      if (
+        this.teams.length > 0 &&
+        this.teams[0].id &&
+        this.setTeamId
+      ) { this.setTeamId(this.teams[0].id); }
+    }
+  }
+
+  public async readAll() {
+    if (this.teamId) {
+      try {
+        await Notification.readAll(this.teamId);
+        Toast("成功标记全部通知为已读。");
+      } catch (err) {
+        Toast("标记全部通知为已读操作失败。");
+        throw err;
+      }
+    }
+  }
+
+  public async openSettingPopup() {
+    this.teams = await Team.getTeams();
+    this.showSelectTeam = true;
+  }
+}
+</script>
+
 
 <style lang="scss">
 * {
@@ -27,33 +98,28 @@
   height: 600px;
 }
 
-.tips-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  background-color: rgb(118, 193, 197);
-  color: #fff;
-  font-size: 16px;
+.tips {
+  &-header {
+    background-color: rgb(118, 193, 197);
 
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
+    &__icon,
+    &__title {
+      color: #fff !important;
+    }
   }
 
-  &__title {
+  &-main {
     flex: 1;
-    display: flex;
-    font-size: 16px;
-    justify-content: center;
+    overflow: auto;
+  }
+
+  &-selectPanel {
+    color: #555;
+
+    .active {
+      color: #5bc4c7;
+    }
   }
 }
 
-.tips-main {
-  flex: 1;
-  overflow: auto;
-}
 </style>

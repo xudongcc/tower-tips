@@ -22,6 +22,14 @@ class Background {
         });
     }
 
+    get teamId(): string {
+        return localStorage.getItem("teamId") || "";
+    }
+
+    set teamId(teamId: string) {
+        localStorage.setItem("teamId", teamId || "");
+    }
+
     public async start() {
         this.member = await Member.getUser();
         this.privateChannel = this.pusher.subscribe(`private-member-${this.member.id}`);
@@ -46,5 +54,5 @@ class Background {
     }
 }
 
-const background = new Background();
+const background = (window as any).background = new Background();
 background.start();

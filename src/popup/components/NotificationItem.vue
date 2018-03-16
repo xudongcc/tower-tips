@@ -20,25 +20,28 @@
 <script lang="ts">
 import moment from "moment";
 import { Component, Prop, Provide, Vue } from "vue-property-decorator";
+import { State } from "vuex-class";
 import { Notification } from "../../services/Notification";
 
 @Component
 export default class NotificationItem extends Vue {
   @Prop()
-  private notification?: Notification;
+  public notification?: Notification;
+
+  @State("teamId")
+  public teamId?: string;
 
   @Provide()
-  private teamId: string = "ac7af4421cc94b51bc19b553448b2c42";
+  public moment = moment;
 
-  @Provide()
-  private moment = moment;
-
-  private openMemberPage(memberId: string) {
+  public openMemberPage(memberId: string) {
     window.open(`https://tower.im/members/${memberId}`);
   }
 
-  private openNotificationPage(notificationId: string) {
-    window.open(`https://tower.im/teams/${this.teamId}/notifications/${notificationId}`);
+  public openNotificationPage(notificationId: string) {
+    if (this.teamId) {
+      window.open(`https://tower.im/teams/${this.teamId}/notifications/${notificationId}`);
+    }
   }
 }
 </script>

@@ -9,13 +9,13 @@ export class Team {
 
         const data: Team[] = [];
         const $ = cheerio.load(response.data);
-        $(".teams").map((teamIndex, team) => {
+        $(".teams > li:not(.new)").map((teamIndex, team) => {
             // Id
             const idMatched = $(team).find("a").first().attr("href").match(/\/teams\/(.*)\/projects/);
             const id = idMatched ? idMatched[1] : "";
 
             // 名称
-            const name = $(team).find(".name").first().html() || "";
+            const name = $(team).find(".name").first().text() || "";
 
             data.push(new Team(id, name));
         });
