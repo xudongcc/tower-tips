@@ -17,7 +17,6 @@ export class Notification {
             withCredentials: true,
         });
 
-        let unreadCount: number = 0;
         const data: Notification[] = [];
         const $ = cheerio.load(response.data);
         $(".notice").map((noticeIndex, notice) => {
@@ -56,12 +55,11 @@ export class Notification {
             // 创建时间
             const createdAt = $(notice).attr("data-created-at");
 
-            if (unread) { unreadCount++; }
             data.push(new Notification(id, action, target, content, unread, createdAt, member, tags));
         });
 
-        // 设置未读数量
-        background.unreadCount = unreadCount;
+        // 更新未读数量
+        background.unreadCount = await this.getUnreadCount(teamId);
 
         return data;
     }
@@ -81,6 +79,19 @@ export class Notification {
             },
             withCredentials: true,
         });
+    }
+
+    public static async getUnreadCount(teamId: string): Promise<number> {
+        const response = await axios.get(`https://tower.im/teams/${teamId}`, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            withCredentials: true,
+        });
+
+        const $ = cheerio.load(response.data);
+
+        return parseInt($(".num").html() || "0", 10);
     }
 
     public id: string;

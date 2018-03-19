@@ -1,6 +1,7 @@
 import Pusher from "pusher-js";
 import uuid from "uuid";
 import { Member } from "../services/Member";
+import { Notification } from "../services/Notification";
 
 class Background {
     private notifications: { [notificationId: string]: any } = {};
@@ -53,6 +54,11 @@ class Background {
             const data = this.notifications[notificationId];
             window.open(`https://tower.im/${data.late_url}`);
         });
+
+        // 15分钟刷新一次未读数量
+        setInterval(async () => {
+            this.unreadCount = await Notification.getUnreadCount(this.teamId);
+        }, 1000 * 60 * 15);
     }
 
     private async createNotification(data: any) {
@@ -66,7 +72,7 @@ class Background {
             type: "basic",
         });
 
-        this.unreadCount = data.unread_count;
+        this.unreadCount = await Notification.getUnreadCount(this.teamId);
     }
 }
 
