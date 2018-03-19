@@ -1,6 +1,13 @@
 import axios from "axios";
 import cheerio from "cheerio";
 
+const backgroundPage = chrome.extension.getBackgroundPage();
+
+let background: any;
+if (backgroundPage) {
+    background = (backgroundPage.window as any).background;
+}
+
 export class Notification {
     public static async getNotifications(teamId: string): Promise<Notification[]> {
         const response = await axios.get(`https://tower.im/teams/${teamId}/notifications/`, {
@@ -10,6 +17,7 @@ export class Notification {
             withCredentials: true,
         });
 
+        let unreadCount: number = 0;
         const data: Notification[] = [];
         const $ = cheerio.load(response.data);
         $(".notice").map((noticeIndex, notice) => {
@@ -48,8 +56,12 @@ export class Notification {
             // 创建时间
             const createdAt = $(notice).attr("data-created-at");
 
+            if (unread) { unreadCount++; }
             data.push(new Notification(id, action, target, content, unread, createdAt, member, tags));
         });
+
+        // 设置未读数量
+        background.unreadCount = unreadCount;
 
         return data;
     }

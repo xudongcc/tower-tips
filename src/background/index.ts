@@ -22,6 +22,20 @@ class Background {
         });
     }
 
+    get unreadCount(): number {
+        return parseInt(localStorage.getItem("unreadCount") || "0", 10) || 0;
+    }
+
+    set unreadCount(unreadCount: number) {
+        if (unreadCount > 0) {
+            chrome.browserAction.setBadgeText({ text: unreadCount.toString() });
+        } else {
+            chrome.browserAction.setBadgeText({ text: "" });
+        }
+
+        localStorage.setItem("unreadCount", unreadCount.toString());
+    }
+
     get teamId(): string {
         return localStorage.getItem("teamId") || "";
     }
@@ -51,6 +65,8 @@ class Background {
             title: data.late_notice,
             type: "basic",
         });
+
+        this.unreadCount = data.unread_count;
     }
 }
 
