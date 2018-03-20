@@ -14,7 +14,6 @@ class Background {
             activityTimeout: 12e4,
             authEndpoint: "https://tower.im/pusher/auth",
             disableStats: true,
-            enabledTransports: ["ws", "flash"],
             encrypted: true,
             pongTimeout: 3e3,
             wsHost: "pusher.tower.im",
