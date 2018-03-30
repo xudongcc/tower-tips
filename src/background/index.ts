@@ -94,17 +94,19 @@ class Background {
     }
 
     private async createNotification(data: any) {
-        const notification = new Notification(data.late_notice, {
-            body: data.late_content,
-            icon: "/icon.png",
-            tag: data.replaceId,
-        });
+        if (data.op === "ADD") {
+            const notification = new Notification(data.late_notice, {
+                body: data.late_content,
+                icon: "/icon.png",
+                tag: data.replaceId,
+            });
 
-        // 点击打开链接
-        notification.onclick = () => window.open(`https://tower.im/${data.late_url}`);
+            // 点击打开链接
+            notification.onclick = () => window.open(`https://tower.im/${data.late_url}`);
 
-        // 显示播放提示音
-        notification.onshow = () => this.audio.play();
+            // 显示播放提示音
+            notification.onshow = () => this.audio.play();
+        }
 
         if (this.team instanceof Team) {
             this.unreadCount = await Notice.getUnreadCount(this.team.guid);
