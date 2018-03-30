@@ -3,7 +3,7 @@
     <van-nav-bar
       class="tips-header"
       @click-left="readAll"
-      @click-right="openSettingPopup">
+      @click-right="() => showSelectTeam = true">
       <span class="tips-header__title" slot="title">Tower.im Tips</span>
       <van-icon class="tips-header__icon" name="success" slot="left" />
       <van-icon class="tips-header__icon" name="setting" slot="right" />
@@ -19,66 +19,52 @@
 </template>
 
 <script lang="ts">
+import _ from "lodash";
 import { Toast } from "vant";
 import { Component, Vue } from "vue-property-decorator";
 import { Action, State } from "vuex-class";
-import { Notification } from "../services/Notification";
+import { Notice } from "../services/Notice";
 import { Team } from "../services/Team";
 
 @Component({})
 export default class Home extends Vue {
-  @State("teamId")
-  public teamId?: string;
+  @State("team")
+  public team?: Team;
 
-  @Action("setTeamId")
-  public setTeamId?: (teamId: string) => void;
+  @State("teams")
+  public teams?: { [guid: string]: Team };
+
+  @Action("setTeam")
+  public setTeam?: (team: Team) => void;
 
   public showSelectTeam: boolean = false;
-  public teams: Team[] = [];
 
   get actions() {
-    return this.teams.map((team) => {
+    return _.map(this.teams, (team) => {
       return {
         ...team,
         callback: () => {
-          if (this.setTeamId) {
-            this.setTeamId(team.id);
+          if (typeof this.setTeam === "function") {
+            this.setTeam(team);
+            this.showSelectTeam = false;
+            Toast(`切换团队为 ${team.name}`);
           }
-
-          this.showSelectTeam = false;
-          Toast(`切换团队为 ${team.name}`);
         },
-        className: this.teamId === team.id ? "active" : "",
+        className: (this.team && this.team.guid) === team.guid ? "active" : "",
       };
     });
   }
 
-  public async mounted() {
-    if (!this.teamId) {
-      this.teams = await Team.getTeams();
-      if (
-        this.teams.length > 0 &&
-        this.teams[0].id &&
-        this.setTeamId
-      ) { this.setTeamId(this.teams[0].id); }
-    }
-  }
-
   public async readAll() {
-    if (this.teamId) {
+    if (this.team) {
       try {
-        await Notification.readAll(this.teamId);
+        await Notice.readAll(this.team.guid);
         Toast("成功标记全部通知为已读。");
       } catch (err) {
         Toast("标记全部通知为已读操作失败。");
         throw err;
       }
     }
-  }
-
-  public async openSettingPopup() {
-    this.teams = await Team.getTeams();
-    this.showSelectTeam = true;
   }
 }
 </script>

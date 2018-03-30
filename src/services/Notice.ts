@@ -8,8 +8,8 @@ if (backgroundPage) {
     background = (backgroundPage.window as any).background;
 }
 
-export class Notification {
-    public static async getNotifications(teamId: string): Promise<Notification[]> {
+export class Notice {
+    public static async getNotices(teamId: string): Promise<Notice[]> {
         const response = await axios.get(`https://tower.im/teams/${teamId}/notifications/`, {
             headers: {
                 "X-Requested-With": "XMLHttpRequest",
@@ -17,7 +17,7 @@ export class Notification {
             withCredentials: true,
         });
 
-        const data: Notification[] = [];
+        const data: Notice[] = [];
         const $ = cheerio.load(response.data);
         $(".notice").map((noticeIndex, notice) => {
             // 用户
@@ -55,7 +55,7 @@ export class Notification {
             // 创建时间
             const createdAt = $(notice).attr("data-created-at");
 
-            data.push(new Notification(id, action, target, content, unread, createdAt, member, tags));
+            data.push(new Notice(id, action, target, content, unread, createdAt, member, tags));
         });
 
         // 更新未读数量

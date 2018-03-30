@@ -5,10 +5,10 @@
     </div>
 
     <template v-else>
-      <NotificationItem v-for="(notification, index) in notifications"
+      <NoticeItem v-for="(notice, index) in notices"
         :key="index"
-        :notification="notification" />
-      <div class="more" @click="openNotificationsPage">更多通知</div>
+        :notice="notice" />
+      <div class="more" @click="openNoticesPage">更多通知</div>
     </template>
   </div>
 </template>
@@ -16,43 +16,45 @@
 <script lang="ts">
 import { Component, Provide, Vue, Watch } from "vue-property-decorator";
 import { State } from "vuex-class";
-import { Notification } from "../../services/Notification";
-import NotificationItem from "../components/NotificationItem.vue";
+import { Notice } from "../../services/Notice";
+import { Team } from "../../services/Team";
+import NoticeItem from "../components/NoticeItem.vue";
 
 @Component({
   components: {
-    NotificationItem,
+    NoticeItem,
   },
 })
 export default class Home extends Vue {
-  @State("teamId")
-  public teamId?: string;
+  @State("team")
+  public team?: Team;
 
   @Provide()
-  public notifications: Notification[] = [];
+  public notices: Notice[] = [];
 
   public loading: boolean = false;
 
-  public async getNotifications() {
-    if (this.teamId) {
+  public async getNotices() {
+    if (this.team) {
       this.loading = true;
-      this.notifications = await Notification.getNotifications(this.teamId);
+      this.notices = await Notice.getNotices(this.team.guid);
       this.loading = false;
     }
   }
 
-  @Watch("teamId")
-  public onTeamIdChanged(teamId: string) {
-    this.getNotifications();
+  @Watch("team")
+  public onTeamIdChanged(team: Team) {
+    console.log('onTeamIdChanged')
+    this.getNotices();
   }
 
   public async mounted() {
-    this.getNotifications();
+    this.getNotices();
   }
 
-  public async openNotificationsPage() {
-    if (this.teamId) {
-      window.open(`https://tower.im/teams/${this.teamId}/notifications/`);
+  public async openNoticesPage() {
+    if (this.team instanceof Team) {
+      window.open(`https://tower.im/teams/${this.team.guid}/notices/`);
     }
   }
 }

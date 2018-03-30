@@ -1,5 +1,6 @@
 import axios from "axios";
 import cheerio from "cheerio";
+import { Member } from "./Member";
 
 export class Team {
     public static async getTeams(): Promise<Team[]> {
@@ -7,27 +8,33 @@ export class Team {
             withCredentials: true,
         });
 
-        const data: Team[] = [];
+        const teams: Team[] = [];
         const $ = cheerio.load(response.data);
-        $(".teams > li:not(.new)").map((teamIndex, team) => {
-            // Id
-            const idMatched = $(team).find("a").first().attr("href").match(/\/teams\/(.*)\/projects/);
-            const id = idMatched ? idMatched[1] : "";
+
+        for (const team of Array.prototype.slice.call($(".teams > li:not(.new)"))) {
+            // GUID
+            const matched = $(team).find("a").first().attr("href").match(/\/teams\/(.*)\/projects/);
+            const guid = matched ? matched[1] : "";
 
             // 名称
             const name = $(team).find(".name").first().text() || "";
 
-            data.push(new Team(id, name));
-        });
+            // 用户
+            const member = await Member.getUser(guid);
 
-        return data;
+            teams.push(new Team(guid, name, member));
+        }
+
+        return teams;
     }
 
-    public id: string;
+    public guid: string;
     public name: string;
+    public member: Member;
 
-    constructor(id: string, name: string) {
-        this.id = id;
+    constructor(guid: string, name: string, member: Member) {
+        this.guid = guid;
         this.name = name;
+        this.member = member;
     }
 }

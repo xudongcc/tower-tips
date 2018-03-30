@@ -5,24 +5,25 @@ const backgroundPage = chrome.extension.getBackgroundPage();
 
 let background: any;
 if (backgroundPage) {
-    background = (backgroundPage.window as any).background;
+    background = (window as any).background = (backgroundPage.window as any).background;
 }
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
     actions: {
-        setTeamId({ commit }, teamId) {
-            commit("setTeamId", teamId);
+        setTeam({ commit }, teamId) {
+            commit("setTeam", teamId);
         },
     },
     mutations: {
-        setTeamId(state, teamId) {
-            state.teamId = teamId;
-            background.teamId = teamId;
+        setTeam(state, team) {
+            state.team = team;
+            background.teamId = team;
         },
     },
     state: {
-        teamId: background.teamId,
+        team: background.team,
+        teams: background.teams,
     },
 });

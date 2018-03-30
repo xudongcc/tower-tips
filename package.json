@@ -6,9 +6,9 @@
     "build": "rm -rf dist dist.zip && webpack && zip -r dist.zip dist"
   },
   "dependencies": {
-    "@types/chrome": "0.0.61",
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
+    "lodash": "^4.17.5",
     "moment": "^2.21.0",
     "pusher-js": "^4.2.2",
     "uuid": "^3.2.1",
@@ -22,6 +22,8 @@
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.7",
+    "@types/chrome": "0.0.61",
+    "@types/lodash": "^4.14.106",
     "@types/pusher-js": "^4.2.0",
     "@types/uuid": "^3.4.3",
     "copy-webpack-plugin": "^4.5.1",

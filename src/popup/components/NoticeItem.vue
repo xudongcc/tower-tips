@@ -1,22 +1,22 @@
 <template>
-  <div class="notificationItem">
-    <div class="notificationItem__status" :class="{ 'notificationItem__status--unread': notification.unread }"></div>
-    <img class="notificationItem__avatar" :src="notification.member.avatar" @click="openMemberPage(notification.member.id)" />
-    <div class="notificationItem__body" @click="openNotificationPage(notification.id)">
-      <div class="notificationItem__meta">
-        <span class="notificationItem__name" v-html="notification.member.name"></span>
-        <span class="notificationItem__action" v-html="notification.action"></span>
+  <div class="noticeItem">
+    <div class="noticeItem__status" :class="{ 'noticeItem__status--unread': notice.unread }"></div>
+    <img class="noticeItem__avatar" :src="notice.member.avatar" @click="openMemberPage(notice.member.id)" />
+    <div class="noticeItem__body" @click="openNoticePage(notice.id)">
+      <div class="noticeItem__meta">
+        <span class="noticeItem__name" v-html="notice.member.name"></span>
+        <span class="noticeItem__action" v-html="notice.action"></span>
       </div>
-      <div class="notificationItem__target" v-if="notification.target" v-html="notification.target"></div>
-      <div class="notificationItem__content" v-if="notification.content" v-html="notification.content"></div>
+      <div class="noticeItem__target" v-if="notice.target" v-html="notice.target"></div>
+      <div class="noticeItem__content" v-if="notice.content" v-html="notice.content"></div>
     </div>
-    <div class="notificationItem__date">
-      <template v-if="Math.floor(new Date().getTime() / 1000 - new Date(notification.createdAt).getTime() / 1000) < 60 * 60 * 24 * 3">
-        {{ friendlyDate(new Date(notification.createdAt)) }}
+    <div class="noticeItem__date">
+      <template v-if="Math.floor(new Date().getTime() / 1000 - new Date(notice.createdAt).getTime() / 1000) < 60 * 60 * 24 * 3">
+        {{ friendlyDate(new Date(notice.createdAt)) }}
       </template>
       <template v-else>
-        {{ moment(new Date(notification.createdAt)).format("YYYY年") }}<br/>
-        {{ moment(new Date(notification.createdAt)).format("MM月DD日") }}
+        {{ moment(new Date(notice.createdAt)).format("YYYY年") }}<br/>
+        {{ moment(new Date(notice.createdAt)).format("MM月DD日") }}
       </template>
     </div>
   </div>
@@ -26,12 +26,12 @@
 import moment from "moment";
 import { Component, Prop, Provide, Vue } from "vue-property-decorator";
 import { State } from "vuex-class";
-import { Notification } from "../../services/Notification";
+import { Notice } from "../../services/Notice";
 
 @Component
-export default class NotificationItem extends Vue {
+export default class NoticeItem extends Vue {
   @Prop()
-  public notification?: Notification;
+  public notice?: Notice;
 
   @State("teamId")
   public teamId?: string;
@@ -59,16 +59,16 @@ export default class NotificationItem extends Vue {
     window.open(`https://tower.im/members/${memberId}`);
   }
 
-  public openNotificationPage(notificationId: string) {
+  public openNoticePage(noticeId: string) {
     if (this.teamId) {
-      window.open(`https://tower.im/teams/${this.teamId}/notifications/${notificationId}`);
+      window.open(`https://tower.im/teams/${this.teamId}/notices/${noticeId}`);
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
-  .notificationItem {
+  .noticeItem {
     display: flex;
     font-size: 14px;
     padding: 10px 0;
