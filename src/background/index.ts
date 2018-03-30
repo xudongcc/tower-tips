@@ -60,28 +60,32 @@ class Background {
         }
     }
 
-    public async subscribePrivateChannel() {
-        if (this.team instanceof Team && this.member instanceof Member) {
-            // 订阅前先切换到订阅消息的团队，不然会订阅失败
-            await axios.get(`https://tower.im/teams/${this.team.guid}`, { withCredentials: true });
-            this.privateChannel = this.pusher.subscribe(`private-member-${this.member.id}`);
-            this.privateChannel.bind("client-notify", this.createNotice.bind(this));
-        }
+    public async subscribeTeamNotification(team: Team) {
+        // 订阅团队通知前要先切换团队，否则会订阅失败
+        await axios.get(`https://tower.im/teams/${team.guid}`, { withCredentials: true });
+
+        // 订阅私有频道
+        this.privateChannel = this.pusher.subscribe(`private-member-${team.member.id}`);
+
+        // 绑定客户端通知事件
+        this.privateChannel.bind("client-notify", this.createNotification.bind(this));
     }
 
     public async start() {
         // 获取所有团队
         (await Team.getTeams()).forEach((team) => this.teams[team.guid] = team);
 
-        // 判断 this.team 是否存在
+        // 判断默认团队是否设置，未设置就设置第一个团队为默认团队
         if (!(this.team instanceof Team)) {
             this.team = this.teams[Object.keys(this.teams)[0]];
         }
 
-        // 订阅私有频道
-        await this.subscribePrivateChannel();
+        // 订阅所有团队频道
+        for (const team of Object.keys(this.teams).map((key: string) => this.teams[key])) {
+            await this.subscribeTeamNotification(team);
+        }
 
-        // 15分钟刷新一次未读数量
+        // 15分钟被动刷新一次未读数量
         setInterval(async () => {
             if (this.team instanceof Team) {
                 this.unreadCount = await Notice.getUnreadCount(this.team.guid);
@@ -89,7 +93,7 @@ class Background {
         }, 1000 * 60 * 15);
     }
 
-    private async createNotice(data: any) {
+    private async createNotification(data: any) {
         const notification = new Notification(data.late_notice, {
             body: data.late_content,
             icon: "/icon.png",
