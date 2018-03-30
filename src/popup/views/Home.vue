@@ -44,7 +44,6 @@ export default class Home extends Vue {
 
   @Watch("team")
   public onTeamIdChanged(team: Team) {
-    console.log('onTeamIdChanged')
     this.getNotices();
   }
 

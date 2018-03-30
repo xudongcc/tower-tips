@@ -1,3 +1,4 @@
+import axios from "axios";
 import Pusher from "pusher-js";
 import { Member } from "../services/Member";
 import { Notice } from "../services/Notice";
@@ -42,7 +43,9 @@ class Background {
 
     get team(): Team | undefined {
         const currentTeamGuid = localStorage.getItem("currentTeamGuid") || "";
-        return this.teams[currentTeamGuid];
+        if (this.teams[currentTeamGuid]) {
+            return this.teams[currentTeamGuid];
+        }
     }
 
     set team(team: Team | undefined) {
@@ -58,7 +61,9 @@ class Background {
     }
 
     public async subscribePrivateChannel() {
-        if (this.member instanceof Member) {
+        if (this.team instanceof Team && this.member instanceof Member) {
+            // 订阅前先切换到订阅消息的团队，不然会订阅失败
+            await axios.get(`https://tower.im/teams/${this.team.guid}`, { withCredentials: true });
             this.privateChannel = this.pusher.subscribe(`private-member-${this.member.id}`);
             this.privateChannel.bind("client-notify", this.createNotice.bind(this));
         }
