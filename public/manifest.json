@@ -3,7 +3,7 @@
 
   "name": "Tower.im Tips",
   "description": "Tower.im 基于 Chrome 扩展开发的第三方开发通知工具",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "icons": {
     "128": "icon.png"
   },

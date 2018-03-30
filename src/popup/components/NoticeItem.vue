@@ -27,14 +27,15 @@ import moment from "moment";
 import { Component, Prop, Provide, Vue } from "vue-property-decorator";
 import { State } from "vuex-class";
 import { Notice } from "../../services/Notice";
+import { Team } from "../../services/Team";
 
 @Component
 export default class NoticeItem extends Vue {
   @Prop()
   public notice?: Notice;
 
-  @State("teamId")
-  public teamId?: string;
+  @State("team")
+  public team?: Team;
 
   @Provide()
   public moment = moment;
@@ -60,8 +61,8 @@ export default class NoticeItem extends Vue {
   }
 
   public openNoticePage(noticeId: string) {
-    if (this.teamId) {
-      window.open(`https://tower.im/teams/${this.teamId}/notices/${noticeId}`);
+    if (this.team) {
+      window.open(`https://tower.im/teams/${this.team.guid}/notifications/${noticeId}`);
     }
   }
 }
