@@ -19,7 +19,7 @@ export default new Vuex.Store({
     mutations: {
         setTeam(state, team) {
             state.team = team;
-            background.teamId = team;
+            background.team = team;
         },
     },
     state: {
