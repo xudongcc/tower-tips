@@ -24,6 +24,7 @@
 
 <script lang="ts">
 import moment from "moment";
+import Raven from "raven-js";
 import { Component, Prop, Provide, Vue } from "vue-property-decorator";
 import { State } from "vuex-class";
 import { Notice } from "../../services/Notice";
@@ -57,11 +58,13 @@ export default class NoticeItem extends Vue {
   }
 
   public openMemberPage(memberId: string) {
+    Raven.captureMessage(`点击 ${memberId} 用户头像`, { level: "info" });
     window.open(`https://tower.im/members/${memberId}`);
   }
 
   public openNoticePage(noticeId: string) {
     if (this.team) {
+      Raven.captureMessage(`点击 ${noticeId} 通知`, { level: "info" });
       window.open(`https://tower.im/teams/${this.team.guid}/notifications/${noticeId}`);
     }
   }

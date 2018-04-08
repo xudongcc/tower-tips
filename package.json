@@ -1,6 +1,6 @@
 {
   "name": "tower-tips",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "scripts": {
     "dev": "rm -rf dist && webpack -w",
     "build": "rm -rf dist dist.zip && webpack && zip -r dist.zip dist"
@@ -11,6 +11,7 @@
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
     "pusher-js": "^4.2.2",
+    "raven-js": "^3.24.0",
     "uuid": "^3.2.1",
     "vant": "^1.0.1",
     "vue": "^2.5.13",
