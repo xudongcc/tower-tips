@@ -5,121 +5,163 @@ const backgroundPage = chrome.extension.getBackgroundPage();
 
 let background: any;
 if (backgroundPage) {
-    background = (backgroundPage.window as any).background;
+  background = (backgroundPage.window as any).background;
 }
 
 export class Notice {
-    public static async getNotices(teamId: string): Promise<Notice[]> {
-        const response = await axios.get(`https://tower.im/teams/${teamId}/notifications/`, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-            },
-            withCredentials: true,
+  public static async getNotices(teamId: string): Promise<Notice[]> {
+    const response = await axios.get(
+      `https://tower.im/teams/${teamId}/notifications/`,
+      {
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        withCredentials: true
+      }
+    );
+
+    const data: Notice[] = [];
+    const $ = cheerio.load(response.data);
+    $(".notice").map((noticeIndex, notice) => {
+      // 用户
+      const member: any = {};
+      member.id = $(notice)
+        .find(".member-avatar")
+        .first()
+        .attr("href")
+        .replace("/members/", "");
+      member.avatar = $(notice)
+        .find("img.avatar")
+        .first()
+        .attr("src");
+      if (member.avatar.indexOf("/") === 0) {
+        member.avatar = `https://tower.im${member.avatar}`;
+      }
+      member.name = $(notice)
+        .find(".member")
+        .first()
+        .html();
+
+      // 标签
+      const tags: string[] = [];
+      $(notice)
+        .find(".tag")
+        .map((tagIndex, tag) => {
+          const tagHtml = $(tag).html();
+          if (typeof tagHtml === "string") {
+            tags.push(tagHtml);
+          }
         });
 
-        const data: Notice[] = [];
-        const $ = cheerio.load(response.data);
-        $(".notice").map((noticeIndex, notice) => {
-            // 用户
-            const member: any = {};
-            member.id = $(notice).find(".member-avatar").first().attr("href").replace("/members/", "");
-            member.avatar = $(notice).find("img.avatar").first().attr("src");
-            if (member.avatar.indexOf("/") === 0) { member.avatar = `https://tower.im${member.avatar}`; }
-            member.name = $(notice).find(".member").first().html();
+      // Id
+      const idMatched = $(notice)
+        .find(".link")
+        .first()
+        .attr("href")
+        .match(/\/notifications\/(.*)/);
+      const id = idMatched ? idMatched[1] : "";
 
-            // 标签
-            const tags: string[] = [];
-            $(notice).find(".tag").map((tagIndex, tag) => {
-                const tagHtml = $(tag).html();
-                if (typeof tagHtml === "string") {
-                    tags.push(tagHtml);
-                }
-            });
+      // 动作
+      const action =
+        $(notice)
+          .find(".action")
+          .first()
+          .html() || "";
 
-            // Id
-            const idMatched = $(notice).find(".link").first().attr("href").match(/\/notifications\/(.*)/);
-            const id = idMatched ? idMatched[1] : "";
+      // 目标
+      const target =
+        $(notice)
+          .find(".-rest")
+          .first()
+          .html() || "";
 
-            // 动作
-            const action = $(notice).find(".action").first().html() || "";
+      // 目标
+      const content =
+        $(notice)
+          .find(".content")
+          .first()
+          .html() || "";
 
-            // 目标
-            const target = $(notice).find(".-rest").first().html() || "";
+      // 未读
+      const unread = $(notice).hasClass("unread");
 
-            // 目标
-            const content = $(notice).find(".content").first().html() || "";
+      // 创建时间
+      const createdAt = $(notice).attr("data-created-at");
 
-            // 未读
-            const unread = $(notice).hasClass("unread");
+      data.push(
+        new Notice(id, action, target, content, unread, createdAt, member, tags)
+      );
+    });
 
-            // 创建时间
-            const createdAt = $(notice).attr("data-created-at");
+    // 更新未读数量
+    background.unreadCount = await this.getUnreadCount(teamId);
 
-            data.push(new Notice(id, action, target, content, unread, createdAt, member, tags));
-        });
+    return data;
+  }
 
-        // 更新未读数量
-        background.unreadCount = await this.getUnreadCount(teamId);
+  public static async readAll(teamId: string) {
+    const response = await axios.get(
+      `https://tower.im/teams/${teamId}/notifications/`,
+      {
+        withCredentials: true
+      }
+    );
 
-        return data;
-    }
+    const $ = cheerio.load(response.data);
+    const CSRF_TOKEN = $("meta[name='csrf-token']").attr("content");
 
-    public static async readAll(teamId: string) {
-        const response = await axios.get(`https://tower.im/teams/${teamId}/notifications/`, {
-            withCredentials: true,
-        });
+    await axios.post(
+      `https://tower.im/teams/${teamId}/notifications/read_all`,
+      "",
+      {
+        headers: {
+          "X-CSRF-Token": CSRF_TOKEN,
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        withCredentials: true
+      }
+    );
+  }
 
-        const $ = cheerio.load(response.data);
-        const CSRF_TOKEN = $("meta[name='csrf-token']").attr("content");
+  public static async getUnreadCount(teamId: string): Promise<number> {
+    const response = await axios.get(`https://tower.im/teams/${teamId}`, {
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      },
+      withCredentials: true
+    });
 
-        await axios.post(`https://tower.im/teams/${teamId}/notifications/read_all`, "", {
-            headers: {
-                "X-CSRF-Token": CSRF_TOKEN,
-                "X-Requested-With": "XMLHttpRequest",
-            },
-            withCredentials: true,
-        });
-    }
+    const $ = cheerio.load(response.data);
 
-    public static async getUnreadCount(teamId: string): Promise<number> {
-        const response = await axios.get(`https://tower.im/teams/${teamId}`, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-            },
-            withCredentials: true,
-        });
+    return parseInt($(".num").html() || "0", 10);
+  }
 
-        const $ = cheerio.load(response.data);
+  public id: string;
+  public action: string;
+  public target: string;
+  public content: string;
+  public unread: boolean;
+  public createdAt: string;
+  public member: any;
+  public tags: string[];
 
-        return parseInt($(".num").html() || "0", 10);
-    }
-
-    public id: string;
-    public action: string;
-    public target: string;
-    public content: string;
-    public unread: boolean;
-    public createdAt: string;
-    public member: any;
-    public tags: string[];
-
-    constructor(
-        id: string,
-        action: string,
-        target: string,
-        content: string,
-        unread: boolean,
-        createdAt: string,
-        member: any,
-        tags: string[],
-    ) {
-        this.id = id;
-        this.action = action;
-        this.target = target;
-        this.content = content;
-        this.unread = unread;
-        this.createdAt = createdAt;
-        this.member = member;
-        this.tags = tags;
-    }
+  constructor(
+    id: string,
+    action: string,
+    target: string,
+    content: string,
+    unread: boolean,
+    createdAt: string,
+    member: any,
+    tags: string[]
+  ) {
+    this.id = id;
+    this.action = action;
+    this.target = target;
+    this.content = content;
+    this.unread = unread;
+    this.createdAt = createdAt;
+    this.member = member;
+    this.tags = tags;
+  }
 }

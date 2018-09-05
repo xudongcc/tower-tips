@@ -5,11 +5,11 @@ import Home from "./views/Home.vue";
 Vue.use(Router);
 
 export default new Router({
-    routes: [
-        {
-            component: Home,
-            name: "home",
-            path: "/",
-        },
-    ],
+  routes: [
+    {
+      component: Home,
+      name: "home",
+      path: "/"
+    }
+  ]
 });

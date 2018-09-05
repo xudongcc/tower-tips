@@ -14,7 +14,6 @@
 </template>
 
 <script lang="ts">
-import Raven from "raven-js";
 import { Component, Provide, Vue, Watch } from "vue-property-decorator";
 import { State } from "vuex-class";
 import { Notice } from "../../services/Notice";
@@ -23,15 +22,13 @@ import NoticeItem from "../components/NoticeItem.vue";
 
 @Component({
   components: {
-    NoticeItem,
-  },
+    NoticeItem
+  }
 })
 export default class Home extends Vue {
-  @State("team")
-  public team?: Team;
+  @State("team") public team?: Team;
 
-  @Provide()
-  public notices: Notice[] = [];
+  @Provide() public notices: Notice[] = [];
 
   public loading: boolean = false;
 
@@ -45,18 +42,15 @@ export default class Home extends Vue {
 
   @Watch("team")
   public onTeamIdChanged(team: Team) {
-    Raven.captureMessage("切换团队", { level: "info" });
     this.getNotices();
   }
 
   public async mounted() {
-    Raven.captureMessage("打开通知列表", { level: "info" });
     this.getNotices();
   }
 
   public async openNoticesPage() {
     if (this.team instanceof Team) {
-      Raven.captureMessage("查看更多通知", { level: "info" });
       window.open(`https://tower.im/teams/${this.team.guid}/notices/`);
     }
   }

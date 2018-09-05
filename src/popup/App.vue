@@ -28,19 +28,16 @@ import { Team } from "../services/Team";
 
 @Component({})
 export default class Home extends Vue {
-  @State("team")
-  public team?: Team;
+  @State("team") public team?: Team;
 
-  @State("teams")
-  public teams?: { [guid: string]: Team };
+  @State("teams") public teams?: { [guid: string]: Team };
 
-  @Action("setTeam")
-  public setTeam?: (team: Team) => void;
+  @Action("setTeam") public setTeam?: (team: Team) => void;
 
   public showSelectTeam: boolean = false;
 
   get actions() {
-    return _.map(this.teams, (team) => {
+    return _.map(this.teams, team => {
       return {
         ...team,
         callback: () => {
@@ -50,7 +47,7 @@ export default class Home extends Vue {
             Toast(`切换团队为 ${team.name}`);
           }
         },
-        className: (this.team && this.team.guid) === team.guid ? "active" : "",
+        className: (this.team && this.team.guid) === team.guid ? "active" : ""
       };
     });
   }
@@ -107,5 +104,4 @@ export default class Home extends Vue {
     }
   }
 }
-
 </style>
