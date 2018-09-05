@@ -2,7 +2,7 @@
 
 Tower.im 基于 Chrome 扩展开发的第三方开发通知工具
 
-Github 源码：https://github.com/xudongcc/tower-tips
+Github 源码：https://github.com/ninedays-io/tower-tips
 
 工具功能：
 1. 显示 Tower.im 通知
