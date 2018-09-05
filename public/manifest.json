@@ -3,7 +3,7 @@
 
   "name": "Tower.im Tips",
   "description": "Tower.im 基于 Chrome 扩展开发的第三方开发通知工具",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "icons": {
     "128": "icon.png"
   },
@@ -11,13 +11,8 @@
     "default_icon": "icon.png",
     "default_popup": "index.html"
   },
-  "permissions": [
-    "notifications",
-    "*://*/*"
-  ],
+  "permissions": ["notifications", "*://*/*"],
   "background": {
-    "scripts": [
-      "js/background.js"
-    ]
+    "scripts": ["js/background.js"]
   }
 }
